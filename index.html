@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGESP · Disponibilidad de Salario Mensual</title>
+<style>
+  :root{
+    --azul:#0b3d6b;
+    --azul-claro:#1e6fb8;
+    --rojo:#c8102e;
+    --gris:#f4f6f9;
+    --texto:#222;
+    --verde:#1e7a4a;
+    --amarillo:#f0ad4e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI',Arial,sans-serif;
+    background:var(--gris);
+    color:var(--texto);
+    line-height:1.5;
+  }
+
+  /* ===== ENCABEZADO ===== */
+  header{
+    background:linear-gradient(135deg,var(--azul),var(--azul-claro));
+    color:#fff;
+    padding:25px 20px 30px;
+    text-align:center;
+  }
+  .header-top{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:15px;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+  }
+  .logo-container{
+    width:60px;height:60px;
+    background:#fff;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 3px 10px rgba(0,0,0,.2);
+    overflow:hidden;
+  }
+  .logo-container img{width:100%;height:100%;object-fit:contain;padding:5px;}
+  .logo-placeholder{
+    font-weight:800;font-size:1rem;color:var(--azul);
+    letter-spacing:1px;text-align:center;line-height:1.1;
+  }
+  .empresa-nombre{text-align:left;}
+  .empresa-nombre h1{font-size:1.5rem;margin-bottom:2px;}
+  .empresa-nombre p{font-size:.8rem;opacity:.9;}
+  header h2{font-size:1.1rem;margin-top:8px;font-weight:500;opacity:.95;}
+  header .subtitulo{font-size:.85rem;margin-top:4px;opacity:.85;}
+
+  /* ===== CUERPO ===== */
+  main{max-width:1300px;margin:0 auto;padding:15px;}
+
+  .intro{
+    background:#fff;
+    border-left:5px solid var(--rojo);
+    padding:15px 20px;
+    border-radius:8px;
+    margin-bottom:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+    font-size:.9rem;
+  }
+  .intro h3{color:var(--azul);margin-bottom:6px;font-size:1.05rem;}
+
+  /* ===== TABLA ===== */
+  .tabla-wrapper{
+    overflow-x:auto;
+    background:#fff;
+    border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
+    margin-bottom:20px;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.82rem;
+    min-width:950px;
+  }
+  thead{
+    background:var(--azul);
+    color:#fff;
+    position:sticky;
+    top:0;
+    z-index:5;
+  }
+  thead th{
+    padding:9px 6px;
+    text-align:center;
+    font-weight:600;
+    font-size:.75rem;
+    border-right:1px solid rgba(255,255,255,.2);
+    line-height:1.2;
+  }
+  thead th:last-child{border-right:none;}
+
+  tbody td{
+    padding:5px 6px;
+    border-bottom:1px solid #e0e6ed;
+    text-align:center;
+    vertical-align:middle;
+  }
+  tbody tr:hover{background:#f0f6ff;}
+
+  .ueb-row{
+    background:#e8f0f8 !important;
+    font-weight:700;
+    color:var(--azul);
+  }
+  .ueb-row td{text-align:left;padding-left:12px;}
+
+  .subtotal-row{
+    background:#fff3cd !important;
+    font-weight:700;
+    color:#856404;
+  }
+
+  .total-row{
+    background:var(--azul) !important;
+    color:#fff !important;
+    font-weight:700;
+    font-size:.9rem;
+  }
+  .total-row td{text-align:center;padding:12px 6px;}
+
+  .direccion-row{
+    background:#f8f9fa !important;
+    font-style:italic;
+    color:#555;
+  }
+
+  input[type="number"], input[type="text"]{
+    width:100%;
+    padding:4px 4px;
+    border:1px solid #ccc;
+    border-radius:4px;
+    font-size:.8rem;
+    text-align:center;
+    font-family:inherit;
+  }
+  input[type="number"]:focus, input[type="text"]:focus{
+    outline:none;
+    border-color:var(--azul-claro);
+    box-shadow:0 0 0 2px rgba(30,111,184,.2);
+  }
+  input[type="text"].nombre-ueb{
+    text-align:left;
+    font-weight:600;
+    color:var(--azul);
+    background:transparent;
+    border:none;
+    font-size:.82rem;
+  }
+  input[type="text"].nombre-ueb:focus{
+    background:#fff;
+    border:1px solid var(--azul-claro);
+  }
+
+  .sin-salario{
+    font-weight:700;
+    color:var(--rojo);
+  }
+  .sin-salario.cero{color:#28a745;}
+
+  /* ===== BOTONES ===== */
+  .acciones{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+  }
+  .btn{
+    padding:8px 16px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:.85rem;
+    transition:all .2s;
+  }
+  .btn-azul{background:var(--azul);color:#fff;}
+  .btn-azul:hover{background:var(--azul-claro);}
+  .btn-rojo{background:var(--rojo);color:#fff;}
+  .btn-rojo:hover{background:#a00d25;}
+  .btn-verde{background:var(--verde);color:#fff;}
+  .btn-verde:hover{background:#145c37;}
+  .btn-gris{background:#6c757d;color:#fff;}
+  .btn-gris:hover{background:#545b62;}
+  .btn-naranja{background:#e67e22;color:#fff;}
+  .btn-naranja:hover{background:#cf6d1a;}
+  .btn-morado{background:#6f42c1;color:#fff;}
+  .btn-morado:hover{background:#5a35a0;}
+  .btn-excel{background:#217346;color:#fff;}
+  .btn-excel:hover{background:#185c37;}
+
+  /* ===== RESUMEN ===== */
+  .resumen{
+    background:#fff;
+    border-radius:10px;
+    padding:20px;
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
+    margin-bottom:20px;
+  }
+  .resumen h3{color:var(--azul);margin-bottom:15px;font-size:1.1rem;border-bottom:2px solid var(--rojo);padding-bottom:8px;}
+  .resumen-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:15px;
+  }
+  .resumen-card{
+    background:var(--gris);
+    border-radius:8px;
+    padding:15px;
+    text-align:center;
+    border-left:4px solid var(--azul);
+  }
+  .resumen-card .label{font-size:.78rem;color:#666;margin-bottom:5px;}
+  .resumen-card .valor{font-size:1.25rem;font-weight:700;color:var(--azul);}
+  .resumen-card .valor.rojo{color:var(--rojo);}
+  .resumen-card .valor.verde{color:var(--verde);}
+
+  .badge{
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:10px;
+    font-size:.72rem;
+    font-weight:700;
+  }
+  .badge-ok{background:#d4edda;color:#155724;}
+  .badge-warn{background:#fff3cd;color:#856404;}
+  .badge-bad{background:#f8d7da;color:#721c24;}
+
+  .nota{
+    font-size:.8rem;
+    color:#666;
+    margin-top:10px;
+    padding:10px;
+    background:#f8f9fa;
+    border-radius:6px;
+    border-left:3px solid var(--amarillo);
+  }
+
+  .estado-guardado{
+    font-size:.8rem;
+    color:var(--verde);
+    font-weight:600;
+    margin-left:10px;
+    opacity:0;
+    transition:opacity .3s;
+  }
+  .estado-guardado.visible{opacity:1;}
+
+  footer{
+    text-align:center;
+    padding:20px;
+    font-size:.8rem;
+    color:#666;
+    background:#fff;
+    margin-top:20px;
+    border-top:3px solid var(--rojo);
+  }
+
+  @media(max-width:600px){
+    .empresa-nombre h1{font-size:1.2rem;}
+    .header-top{flex-direction:column;text-align:center;}
+    .empresa-nombre{text-align:center;}
+    .resumen-grid{grid-template-columns:1fr 1fr;}
+  }
+
+  /* ============================================================
+     ESTILOS PARA IMPRESIÓN EN HOJA CARTA (8.5" × 11") HORIZONTAL
+     ============================================================ */
+  @media print {
+    @page {
+      size: letter landscape;
+      margin: 8mm 10mm;
+    }
+
+    body {
+      background: #fff !important;
+      font-family: Arial, sans-serif;
+      font-size: 9pt;
+      color: #000;
+      width: 100%;
+    }
+
+    .intro, .acciones, .estado-guardado, footer, .nota,
+    .btn, button, .cta {
+      display: none !important;
+    }
+
+    header {
+      background: #fff !important;
+      color: #000 !important;
+      padding: 0 0 6px 0 !important;
+      border-bottom: 2px solid #000;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-align: left;
+    }
+    header h1, header h2, header p { color: #000 !important; }
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+    }
+    .logo-container {
+      background: #fff !important;
+      box-shadow: none !important;
+      border: 1px solid #000;
+      width: 45px;
+      height: 45px;
+      border-radius: 6px;
+    }
+    .logo-placeholder { color: #000 !important; font-size: .7rem; }
+    .empresa-nombre h1 { font-size: 1rem !important; }
+    .empresa-nombre p { font-size: .65rem !important; }
+    header h2 { font-size: .85rem !important; margin: 0 !important; }
+    header .subtitulo { font-size: .7rem !important; }
+
+    .tabla-wrapper {
+      box-shadow: none !important;
+      border: 1px solid #000;
+      overflow: visible !important;
+      width: 100%;
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100% !important;
+      min-width: 0 !important;
+      font-size: 7.5pt;
+      table-layout: fixed;
+      border-collapse: collapse;
+    }
+    thead {
+      background: #000 !important;
+      color: #fff !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    thead th {
+      background: #000 !important;
+      color: #fff !important;
+      padding: 4px 2px !important;
+      font-size: 7pt;
+      border: 1px solid #333;
+      word-wrap: break-word;
+      white-space: normal;
+      line-height: 1.1;
+    }
+    tbody td {
+      padding: 2px 3px !important;
+      border: 1px solid #999;
+      font-size: 7.5pt;
+      line-height: 1.2;
+    }
+
+    .ueb-row {
+      background: #d0d8e8 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .ueb-row td { font-size: 7.5pt; }
+    .subtotal-row {
+      background: #ffe699 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      font-weight: 700;
+    }
+    .total-row {
+      background: #000 !important;
+      color: #fff !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      font-size: 8pt !important;
+    }
+    .total-row td { padding: 5px 2px !important; }
+
+    input[type="number"],
+    input[type="text"],
+    input[type="text"].nombre-ueb {
+      border: none !important;
+      background: transparent !important;
+      padding: 0 !important;
+      font-size: 7.5pt !important;
+      width: 100% !important;
+      text-align: center !important;
+      color: #000 !important;
+    }
+    input[type="text"].nombre-ueb { text-align: left !important; }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    .resumen {
+      box-shadow: none !important;
+      border: 1px solid #000;
+      page-break-inside: avoid;
+      padding: 6px !important;
+      margin-bottom: 0;
+    }
+    .resumen h3 {
+      color: #000 !important;
+      border-bottom: 2px solid #000;
+      font-size: .85rem;
+      margin-bottom: 6px !important;
+      padding-bottom: 3px !important;
+    }
+    .resumen-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .resumen-card {
+      background: #f0f0f0 !important;
+      border-left: 2px solid #000 !important;
+      padding: 4px !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .resumen-card .label { font-size: 6.5pt !important; color: #333 !important; }
+    .resumen-card .valor { font-size: 8pt !important; color: #000 !important; }
+
+    tr, .ueb-row, .subtotal-row, .total-row { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ENCABEZADO AGESP -->
+<header>
+  <div class="header-top">
+    <div class="logo-container">
+      <!-- Reemplaza por tu logo real: -->
+      <!-- <img src="logo-agesp.png" alt="Logo AGESP"> -->
+      <div class="logo-placeholder">AGE<br>SP</div>
+    </div>
+    <div class="empresa-nombre">
+      <h1>AGESP</h1>
+      <p>Empresa de Seguridad y Protección</p>
+    </div>
+  </div>
+  <h2>Disponibilidad de Salario Mensual</h2>
+  <p class="subtitulo">Estimado salario · Octubre · Cálculo automático por UEB y total empresa</p>
+</header>
+
+<main>
+
+  <div class="intro">
+    <h3>Instrucciones</h3>
+    <p>Edita los campos de <strong>Trabajadores</strong>, <strong>Trab. con Salario</strong>, <strong>Salario</strong> y <strong>Disponibilidad</strong>. La columna <strong>Sin Salario</strong> se calcula sola. Usa <strong>💾 Guardar</strong> para conservar los datos y <strong>📂 Restaurar</strong> para recuperarlos. <strong>🖨️ Imprimir</strong> genera una versión limpia en hoja Carta horizontal. <strong>📊 Exportar Excel</strong> descarga la tabla en formato .xlsx.</p>
+  </div>
+
+  <!-- BOTONES DE ACCIÓN -->
+  <div class="acciones">
+    <button class="btn btn-morado" onclick="guardarDatos()">💾 Guardar</button>
+    <button class="btn btn-naranja" onclick="restaurarDatos()">📂 Restaurar</button>
+    <button class="btn btn-azul" onclick="imprimir()">🖨️ Imprimir</button>
+    <button class="btn btn-verde" onclick="agregarFila()">+ Agregar fila a UEB</button>
+    <button class="btn btn-excel" onclick="exportarExcel()">📊 Exportar Excel</button>
+    <button class="btn btn-rojo" onclick="resetearDatos()">🗑️ Restablecer originales</button>
+    <span class="estado-guardado" id="estadoGuardado">✔ Datos guardados</span>
+  </div>
+
+  <!-- TABLA PRINCIPAL -->
+  <div class="tabla-wrapper">
+    <table id="tablaSalario">
+      <thead>
+        <tr>
+          <th style="width:22%;">UEB / Agencia</th>
+          <th style="width:9%;">Trabajadores</th>
+          <th style="width:10%;">Trab. con Salario</th>
+          <th style="width:9%;">Sin Salario</th>
+          <th style="width:14%;">Salario (CUP)</th>
+          <th style="width:14%;">Disponibilidad</th>
+          <th style="width:12%;">Faltan para Salario</th>
+          <th style="width:10%;">% Cob.</th>
+        </tr>
+      </thead>
+      <tbody id="tbodySalario">
+        <!-- Se genera con JavaScript -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- RESUMEN GENERAL -->
+  <div class="resumen">
+    <h3>Resumen General de la Empresa</h3>
+    <div class="resumen-grid">
+      <div class="resumen-card">
+        <div class="label">Total Trabajadores</div>
+        <div class="valor" id="resumenTrabajadores">0</div>
+      </div>
+      <div class="resumen-card">
+        <div class="label">Trab. con Salario</div>
+        <div class="valor verde" id="resumenConSalario">0</div>
+      </div>
+      <div class="resumen-card">
+        <div class="label">Trab. sin Salario</div>
+        <div class="valor rojo" id="resumenSinSalario">0</div>
+      </div>
+      <div class="resumen-card">
+        <div class="label">Total Salario (CUP)</div>
+        <div class="valor" id="resumenSalario">0.00</div>
+      </div>
+      <div class="resumen-card">
+        <div class="label">Total Disponibilidad</div>
+        <div class="valor" id="resumenDisponibilidad">0.00</div>
+      </div>
+      <div class="resumen-card">
+        <div class="label">Faltan para Salario</div>
+        <div class="valor rojo" id="resumenFaltan">0.00</div>
+      </div>
+      <div class="resumen-card">
+        <div class="label">% Cobertura Salarial</div>
+        <div class="valor verde" id="resumenCobertura">0%</div>
+      </div>
+    </div>
+    <div class="nota">
+      <strong>Nota:</strong> La columna <strong>Sin Salario</strong> se calcula como <em>Trabajadores − Trab. con Salario</em>. Usa <strong>💾 Guardar</strong> antes de cerrar el navegador y <strong>📂 Restaurar</strong> para recuperar los datos guardados. El botón <strong>📊 Exportar Excel</strong> descarga un archivo .xlsx con formato y colores.
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>© 2026 · AGESP · Disponibilidad de Salario Mensual · Cuba</p>
+  <p>Datos basados en el archivo "Efectivo_de_salario_Octubre" · Cálculo automático</p>
+</footer>
+
+<!-- Librería SheetJS para exportar a Excel -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+<script>
+// ============================================================
+// CLAVE DE LOCALSTORAGE
+// ============================================================
+const STORAGE_KEY = "agesp_salario_octubre";
+
+// ============================================================
+// DATOS INICIALES (basados en el Excel de octubre)
+// ============================================================
+const datosIniciales = [
+  // --- OCCIDENTE ---
+  { grupo: "OCCIDENTE", ueb: "Ag 1 Haiphong", trabajadores: 48, trabajadoresConSalario: 48, salario: 443174.96 },
+  { grupo: "OCCIDENTE", ueb: "Ag 2 Andres Glez Line", trabajadores: 70, trabajadoresConSalario: 70, salario: 589457.08 },
+  { grupo: "OCCIDENTE", ueb: "Ag.5 Luyanó", trabajadores: 77, trabajadoresConSalario: 77, salario: 851537.62 },
+  { grupo: "OCCIDENTE", ueb: "Ag. 7 Sta Amalia", trabajadores: 99, trabajadoresConSalario: 99, salario: 882191.17 },
+  { grupo: "OCCIDENTE", ueb: "Ag. 9 Cotorro", trabajadores: 88, trabajadoresConSalario: 88, salario: 803445.67 },
+  { grupo: "OCCIDENTE", ueb: "Ag. 14 Astro", trabajadores: 192, trabajadoresConSalario: 192, salario: 945789.10 },
+  { grupo: "OCCIDENTE", ueb: "Ag. 15 Alamar", trabajadores: 106, trabajadoresConSalario: 106, salario: 897564.23 },
+  { grupo: "OCCIDENTE", ueb: "Ag. 16 Avantec", trabajadores: 126, trabajadoresConSalario: 126, salario: 995689.25 },
+  { grupo: "OCCIDENTE", ueb: "Ag. 21 Mariel", trabajadores: 91, trabajadoresConSalario: 91, salario: 785258.23 },
+  { grupo: "OCCIDENTE", ueb: "Dirección Territorial", trabajadores: 41, trabajadoresConSalario: 41, salario: 379254.20, esDireccion: true },
+  { grupo: "OCCIDENTE", ueb: "Ag. 19 Isla Juventud", trabajadores: 107, trabajadoresConSalario: 107, salario: 808156.45 },
+  { grupo: "OCCIDENTE", ueb: "Ag. 20 P.del Rio", trabajadores: 81, trabajadoresConSalario: 81, salario: 789564.25 },
+
+  // --- SERVICIOS TÉCNICOS ---
+  { grupo: "EF SERV.TÉCNICOS", ueb: "11 Tecnica", trabajadores: 21, trabajadoresConSalario: 21, salario: 258459.25 },
+  { grupo: "EF SERV.TÉCNICOS", ueb: "12 Valores", trabajadores: 43, trabajadoresConSalario: 43, salario: 298564.26 },
+  { grupo: "EF SERV.TÉCNICOS", ueb: "37 Prepar-Diag", trabajadores: 17, trabajadoresConSalario: 17, salario: 169889.45 },
+  { grupo: "EF SERV.TÉCNICOS", ueb: "Dirección", trabajadores: 28, trabajadoresConSalario: 28, salario: 259107.18, esDireccion: true },
+
+  // --- CENTRO ---
+  { grupo: "CENTRO", ueb: "22 Matanzas", trabajadores: 90, trabajadoresConSalario: 90, salario: 598214.20 },
+  { grupo: "CENTRO", ueb: "24 Cienfuegos", trabajadores: 85, trabajadoresConSalario: 85, salario: 714568.23 },
+  { grupo: "CENTRO", ueb: "25 Villa Clara", trabajadores: 95, trabajadoresConSalario: 95, salario: 801456.87 },
+  { grupo: "CENTRO", ueb: "26 Sancti Spiritus", trabajadores: 88, trabajadoresConSalario: 88, salario: 587456.25 },
+  { grupo: "CENTRO", ueb: "Dirección Territorial", trabajadores: 28, trabajadoresConSalario: 28, salario: 229126.25, esDireccion: true },
+
+  // --- C. ESTE ---
+  { grupo: "C. ESTE", ueb: "27 Camaguey", trabajadores: 143, trabajadoresConSalario: 143, salario: 815214.36 },
+  { grupo: "C. ESTE", ueb: "28 Nuevitas", trabajadores: 56, trabajadoresConSalario: 56, salario: 589456.21 },
+  { grupo: "C. ESTE", ueb: "30 Las Tunas", trabajadores: 143, trabajadoresConSalario: 0, salario: 1098545.26 },
+  { grupo: "C. ESTE", ueb: "Dirección Territorial", trabajadores: 31, trabajadoresConSalario: 0, salario: 307245.00, esDireccion: true },
+
+  // --- ORIENTE ---
+  { grupo: "ORIENTE", ueb: "31 Stgo Puerto", trabajadores: 75, trabajadoresConSalario: 75, salario: 836334.85 },
+  { grupo: "ORIENTE", ueb: "32 Stgo Ferroc", trabajadores: 246, trabajadoresConSalario: 246, salario: 1321167.07 },
+  { grupo: "ORIENTE", ueb: "34 Holguin", trabajadores: 201, trabajadoresConSalario: 201, salario: 1266495.74 },
+  { grupo: "ORIENTE", ueb: "35 Granma", trabajadores: 234, trabajadoresConSalario: 234, salario: 1114596.91 },
+  { grupo: "ORIENTE", ueb: "36 Guantanamo", trabajadores: 70, trabajadoresConSalario: 70, salario: 897254.25 },
+  { grupo: "ORIENTE", ueb: "40- MITRANAS", trabajadores: 81, trabajadoresConSalario: 81, salario: 995535.59 },
+  { grupo: "ORIENTE", ueb: "Dirección Territorial", trabajadores: 30, trabajadoresConSalario: 30, salario: 301056.62, esDireccion: true },
+
+  // --- OFICINA CENTRAL ---
+  { grupo: "OFICINA CENTRAL", ueb: "Oficina Central", trabajadores: 62, trabajadoresConSalario: 62, salario: 616873.97 },
+];
+
+// Estado global
+let filas = [];
+
+// Inicializar filas editables
+function inicializarFilas() {
+  filas = datosIniciales.map((d, i) => ({
+    id: i,
+    grupo: d.grupo,
+    ueb: d.ueb,
+    trabajadores: d.trabajadores,
+    trabajadoresConSalario: d.trabajadoresConSalario !== undefined ? d.trabajadoresConSalario : d.trabajadores,
+    salario: d.salario,
+    disponibilidad: d.salario,
+    esDireccion: d.esDireccion || false,
+    esNueva: false
+  }));
+}
+
+function fmt(n) {
+  if (isNaN(n)) return "0.00";
+  return n.toLocaleString("es-CU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtInt(n) {
+  if (isNaN(n)) return "0";
+  return n.toLocaleString("es-CU");
+}
+
+function renderizar() {
+  const tbody = document.getElementById("tbodySalario");
+  tbody.innerHTML = "";
+  const grupos = [...new Set(filas.map(f => f.grupo))];
+
+  grupos.forEach(grupo => {
+    const filasGrupo = filas.filter(f => f.grupo === grupo);
+
+    const trGrupo = document.createElement("tr");
+    trGrupo.className = "ueb-row";
+    trGrupo.innerHTML = `<td colspan="8">📁 ${grupo}</td>`;
+    tbody.appendChild(trGrupo);
+
+    filasGrupo.forEach(fila => {
+      const tr = document.createElement("tr");
+      if (fila.esDireccion) tr.className = "direccion-row";
+      tr.dataset.id = fila.id;
+      const sinSal = Math.max(0, fila.trabajadores - fila.trabajadoresConSalario);
+      tr.innerHTML = `
+        <td>
+          <input type="text" class="nombre-ueb" value="${fila.ueb}" 
+                 onchange="actualizarCampo(${fila.id}, 'ueb', this.value)" 
+                 placeholder="Nombre UEB">
+        </td>
+        <td>
+          <input type="number" min="0" value="${fila.trabajadores}" 
+                 onchange="actualizarCampo(${fila.id}, 'trabajadores', this.value)">
+        </td>
+        <td>
+          <input type="number" min="0" value="${fila.trabajadoresConSalario}" 
+                 onchange="actualizarCampo(${fila.id}, 'trabajadoresConSalario', this.value)">
+        </td>
+        <td class="sin-salario ${sinSal === 0 ? 'cero' : ''}">${fmtInt(sinSal)}</td>
+        <td>
+          <input type="number" min="0" step="0.01" value="${fila.salario.toFixed(2)}" 
+                 onchange="actualizarCampo(${fila.id}, 'salario', this.value)">
+        </td>
+        <td>
+          <input type="number" min="0" step="0.01" value="${fila.disponibilidad.toFixed(2)}" 
+                 onchange="actualizarCampo(${fila.id}, 'disponibilidad', this.value)">
+        </td>
+        <td><span id="faltan-${fila.id}">${fmt(Math.max(0, fila.salario - fila.disponibilidad))}</span></td>
+        <td>
+          <span id="pct-${fila.id}" class="badge ${getBadgeClass(fila.salario, fila.disponibilidad)}">
+            ${getPct(fila.salario, fila.disponibilidad)}%
+          </span>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    const totalTrab = filasGrupo.reduce((s, f) => s + (parseFloat(f.trabajadores) || 0), 0);
+    const totalConSal = filasGrupo.reduce((s, f) => s + (parseFloat(f.trabajadoresConSalario) || 0), 0);
+    const totalSinSal = Math.max(0, totalTrab - totalConSal);
+    const totalSal = filasGrupo.reduce((s, f) => s + (parseFloat(f.salario) || 0), 0);
+    const totalDisp = filasGrupo.reduce((s, f) => s + (parseFloat(f.disponibilidad) || 0), 0);
+    const faltan = Math.max(0, totalSal - totalDisp);
+    const pct = totalSal > 0 ? (totalDisp / totalSal * 100).toFixed(1) : "100.0";
+
+    const trSub = document.createElement("tr");
+    trSub.className = "subtotal-row";
+    trSub.innerHTML = `
+      <td>Subtotal ${grupo}</td>
+      <td>${fmtInt(totalTrab)}</td>
+      <td>${fmtInt(totalConSal)}</td>
+      <td>${fmtInt(totalSinSal)}</td>
+      <td>${fmt(totalSal)}</td>
+      <td>${fmt(totalDisp)}</td>
+      <td>${fmt(faltan)}</td>
+      <td>${pct}%</td>
+    `;
+    tbody.appendChild(trSub);
+  });
+
+  const totalTrab = filas.reduce((s, f) => s + (parseFloat(f.trabajadores) || 0), 0);
+  const totalConSal = filas.reduce((s, f) => s + (parseFloat(f.trabajadoresConSalario) || 0), 0);
+  const totalSinSal = Math.max(0, totalTrab - totalConSal);
+  const totalSal = filas.reduce((s, f) => s + (parseFloat(f.salario) || 0), 0);
+  const totalDisp = filas.reduce((s, f) => s + (parseFloat(f.disponibilidad) || 0), 0);
+  const faltan = Math.max(0, totalSal - totalDisp);
+  const pct = totalSal > 0 ? (totalDisp / totalSal * 100).toFixed(2) : "100.00";
+
+  const trTotal = document.createElement("tr");
+  trTotal.className = "total-row";
+  trTotal.innerHTML = `
+    <td>TOTAL GENERAL EMPRESA</td>
+    <td>${fmtInt(totalTrab)}</td>
+    <td>${fmtInt(totalConSal)}</td>
+    <td>${fmtInt(totalSinSal)}</td>
+    <td>${fmt(totalSal)}</td>
+    <td>${fmt(totalDisp)}</td>
+    <td>${fmt(faltan)}</td>
+    <td>${pct}%</td>
+  `;
+  tbody.appendChild(trTotal);
+
+  actualizarResumen(totalTrab, totalConSal, totalSinSal, totalSal, totalDisp, faltan, pct);
+}
+
+function getBadgeClass(salario, disponibilidad) {
+  if (!salario || salario <= 0) return "badge-ok";
+  const pct = disponibilidad / salario * 100;
+  if (pct >= 99.5) return "badge-ok";
+  if (pct >= 70) return "badge-warn";
+  return "badge-bad";
+}
+function getPct(salario, disponibilidad) {
+  if (!salario || salario <= 0) return "100.0";
+  return (disponibilidad / salario * 100).toFixed(1);
+}
+
+function actualizarCampo(id, campo, valor) {
+  const fila = filas.find(f => f.id === id);
+  if (!fila) return;
+
+  if (campo === "trabajadores") fila.trabajadores = parseInt(valor) || 0;
+  else if (campo === "trabajadoresConSalario") {
+    fila.trabajadoresConSalario = parseInt(valor) || 0;
+    if (fila.trabajadoresConSalario > fila.trabajadores) {
+      fila.trabajadoresConSalario = fila.trabajadores;
+    }
+  }
+  else if (campo === "salario") {
+    fila.salario = parseFloat(valor) || 0;
+    fila.disponibilidad = fila.salario;
+  }
+  else if (campo === "disponibilidad") fila.disponibilidad = parseFloat(valor) || 0;
+  else fila[campo] = valor;
+
+  renderizar();
+}
+
+function actualizarResumen(totalTrab, totalConSal, totalSinSal, totalSal, totalDisp, faltan, pct) {
+  document.getElementById("resumenTrabajadores").textContent = fmtInt(totalTrab);
+  document.getElementById("resumenConSalario").textContent = fmtInt(totalConSal);
+  document.getElementById("resumenSinSalario").textContent = fmtInt(totalSinSal);
+  document.getElementById("resumenSalario").textContent = fmt(totalSal);
+  document.getElementById("resumenDisponibilidad").textContent = fmt(totalDisp);
+  document.getElementById("resumenFaltan").textContent = fmt(faltan);
+  document.getElementById("resumenCobertura").textContent = pct + "%";
+}
+
+// ============================================================
+// GUARDAR / RESTAURAR
+// ============================================================
+function guardarDatos() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filas));
+    const estado = document.getElementById("estadoGuardado");
+    estado.textContent = "✔ Datos guardados " + new Date().toLocaleTimeString("es-CU");
+    estado.classList.add("visible");
+    setTimeout(() => estado.classList.remove("visible"), 3000);
+  } catch (e) {
+    alert("No se pudieron guardar los datos: " + e.message);
+  }
+}
+
+function restaurarDatos() {
+  try {
+    const guardado = localStorage.getItem(STORAGE_KEY);
+    if (!guardado) {
+      alert("No hay datos guardados en este navegador. Usa primero el botón 💾 Guardar.");
+      return;
+    }
+    if (!confirm("¿Restaurar los datos guardados? Se sobrescribirán los cambios actuales.")) return;
+    filas = JSON.parse(guardado);
+    renderizar();
+    const estado = document.getElementById("estadoGuardado");
+    estado.textContent = "✔ Datos restaurados";
+    estado.classList.add("visible");
+    setTimeout(() => estado.classList.remove("visible"), 3000);
+  } catch (e) {
+    alert("No se pudieron restaurar los datos: " + e.message);
+  }
+}
+
+// ============================================================
+// IMPRIMIR
+// ============================================================
+function imprimir() {
+  window.print();
+}
+
+// ============================================================
+// EXPORTAR A EXCEL (.xlsx)
+// ============================================================
+function exportarExcel() {
+  try {
+    // Construir la matriz de datos para el Excel
+    const datos = [];
+
+    // Encabezado de la empresa
+    datos.push(["AGESP - Empresa de Seguridad y Protección"]);
+    datos.push(["Disponibilidad de Salario Mensual"]);
+    datos.push(["Fecha de exportación: " + new Date().toLocaleString("es-CU")]);
+    datos.push([]); // fila vacía
+
+    // Encabezados de la tabla
+    datos.push([
+      "UEB / Agencia",
+      "Trabajadores",
+      "Trab. con Salario",
+      "Sin Salario",
+      "Salario (CUP)",
+      "Disponibilidad",
+      "Faltan para Salario",
+      "% Cobertura"
+    ]);
+
+    const grupos = [...new Set(filas.map(f => f.grupo))];
+
+    grupos.forEach(grupo => {
+      // Fila de grupo
+      datos.push([grupo, "", "", "", "", "", "", ""]);
+
+      const filasGrupo = filas.filter(f => f.grupo === grupo);
+      filasGrupo.forEach(f => {
+        const sinSal = Math.max(0, f.trabajadores - f.trabajadoresConSalario);
+        const faltan = Math.max(0, f.salario - f.disponibilidad);
+        const pct = f.salario > 0 ? (f.disponibilidad / f.salario * 100) : 100;
+        datos.push([
+          f.ueb,
+          f.trabajadores,
+          f.trabajadoresConSalario,
+          sinSal,
+          f.salario,
+          f.disponibilidad,
+          faltan,
+          pct / 100
+        ]);
+      });
+
+      // Subtotal del grupo
+      const totalTrab = filasGrupo.reduce((s, f) => s + f.trabajadores, 0);
+      const totalConSal = filasGrupo.reduce((s, f) => s + f.trabajadoresConSalario, 0);
+      const totalSinSal = Math.max(0, totalTrab - totalConSal);
+      const totalSal = filasGrupo.reduce((s, f) => s + f.salario, 0);
+      const totalDisp = filasGrupo.reduce((s, f) => s + f.disponibilidad, 0);
+      const faltan = Math.max(0, totalSal - totalDisp);
+      const pct = totalSal > 0 ? (totalDisp / totalSal) : 1;
+      datos.push([
+        "Subtotal " + grupo,
+        totalTrab,
+        totalConSal,
+        totalSinSal,
+        totalSal,
+        totalDisp,
+        faltan,
+        pct
+      ]);
+      datos.push([]); // fila vacía entre grupos
+    });
+
+    // Total general
+    const totalTrab = filas.reduce((s, f) => s + f.trabajadores, 0);
+    const totalConSal = filas.reduce((s, f) => s + f.trabajadoresConSalario, 0);
+    const totalSinSal = Math.max(0, totalTrab - totalConSal);
+    const totalSal = filas.reduce((s, f) => s + f.salario, 0);
+    const totalDisp = filas.reduce((s, f) => s + f.disponibilidad, 0);
+    const faltan = Math.max(0, totalSal - totalDisp);
+    const pct = totalSal > 0 ? (totalDisp / totalSal) : 1;
+    datos.push([
+      "TOTAL GENERAL EMPRESA",
+      totalTrab,
+      totalConSal,
+      totalSinSal,
+      totalSal,
+      totalDisp,
+      faltan,
+      pct
+    ]);
+
+    // Crear hoja de trabajo
+    const ws = XLSX.utils.aoa_to_sheet(datos);
+
+    // Ajustar anchos de columnas
+    ws["!cols"] = [
+      { wch: 28 }, // UEB
+      { wch: 12 }, // Trabajadores
+      { wch: 14 }, // Trab. con Salario
+      { wch: 12 }, // Sin Salario
+      { wch: 16 }, // Salario
+      { wch: 16 }, // Disponibilidad
+      { wch: 16 }, // Faltan
+      { wch: 12 }  // % Cobertura
+    ];
+
+    // Crear libro y agregar hoja
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Disponibilidad Salario");
+
+    // Nombre del archivo con fecha
+    const fecha = new Date().toISOString().slice(0, 10);
+    const nombreArchivo = "AGESP_Disponibilidad_Salario_" + fecha + ".xlsx";
+
+    // Descargar
+    XLSX.writeFile(wb, nombreArchivo);
+
+    // Mostrar confirmación
+    const estado = document.getElementById("estadoGuardado");
+    estado.textContent = "✔ Excel exportado: " + nombreArchivo;
+    estado.classList.add("visible");
+    setTimeout(() => estado.classList.remove("visible"), 4000);
+  } catch (e) {
+    alert("Error al exportar a Excel: " + e.message);
+  }
+}
+
+// ============================================================
+// OTRAS ACCIONES
+// ============================================================
+function resetearDatos() {
+  if (!confirm("¿Restablecer todos los datos a los valores originales de octubre? Se perderán los cambios no guardados.")) return;
+  inicializarFilas();
+  renderizar();
+}
+
+function agregarFila() {
+  const grupos = [...new Set(filas.map(f => f.grupo))];
+  const grupo = prompt("¿A qué grupo/UEB deseas agregar la fila?\n\nOpciones:\n" + grupos.join("\n"));
+  if (!grupo || !grupos.includes(grupo)) {
+    alert("Grupo no válido. Intenta de nuevo.");
+    return;
+  }
+  const nombre = prompt("Nombre de la nueva UEB:");
+  if (!nombre) return;
+
+  const nuevoId = Math.max(...filas.map(f => f.id), 0) + 1;
+  filas.push({
+    id: nuevoId,
+    grupo: grupo,
+    ueb: nombre,
+    trabajadores: 0,
+    trabajadoresConSalario: 0,
+    salario: 0,
+    disponibilidad: 0,
+    esDireccion: false,
+    esNueva: true
+  });
+  renderizar();
+}
+
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
+inicializarFilas();
+renderizar();
+</script>
+
+</body>
+</html>
